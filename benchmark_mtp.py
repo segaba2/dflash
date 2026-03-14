@@ -292,38 +292,15 @@ def _build_mode_runs(
         mode_runs.append(("baseline", "baseline", common_server_args, False))
     mode_runs.append(
         (
-            "dflash",
-            "DFLASH",
+            "mtp",
+            "NEXTN",
             [
                 *common_server_args,
                 "--speculative-algorithm",
-                "DFLASH",
-                "--speculative-draft-model-path",
-                args.draft_model,
-                *(
-                    [
-                        "--speculative-dflash-draft-window-size",
-                        str(int(args.speculative_dflash_draft_window_size)),
-                    ]
-                    if args.speculative_dflash_draft_window_size is not None
-                    else []
-                ),
-                *(
-                    [
-                        "--speculative-draft-attention-backend",
-                        args.speculative_draft_attention_backend,
-                    ]
-                    if args.speculative_draft_attention_backend
-                    else []
-                ),
-                *(
-                    [
-                        "--speculative-num-draft-tokens",
-                        str(int(args.block_size)),
-                    ]
-                    if args.block_size is not None
-                    else []
-                ),
+                "NEXTN",
+                "--speculative-num-draft-tokens", str(int(args.block_size)),
+                "--speculative-num-steps", str(int(args.block_size-1)),
+                "--speculative-eagle-topk", "1",
             ],
             True,
         )
