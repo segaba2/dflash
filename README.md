@@ -2,81 +2,52 @@
 [**Paper**](https://arxiv.org/abs/2602.06036) | [**Blog**](https://z-lab.ai/projects/dflash/) | [**Models**](https://huggingface.co/collections/z-lab/dflash)
 
 **DFlash** is a lightweight **block diffusion** model designed for speculative decoding. It enables efficient and high-quality parallel drafting.
-<br>
 
-<div align="center">
-  <img src="assets/dflash_system.png" alt="DFlash Architecture" width="100%">
-</div>
+![DFlash Architecture](https://raw.githubusercontent.com/jianc99/jianc99.github.io/master/images/dflash_system.png)
 
 https://github.com/user-attachments/assets/5b29cabb-eb95-44c9-8ffe-367c0758de8c
 
-<br>
+## Supported Models
 
-## 📦 Model Support Plan
+| Model | DFlash Draft |
+|---|---|
+| Kimi-K2.5 (Preview) | [z-lab/Kimi-K2.5-DFlash](https://huggingface.co/z-lab/Kimi-K2.5-DFlash) |
+| Qwen3.5-4B | [z-lab/Qwen3.5-4B-DFlash](https://huggingface.co/z-lab/Qwen3.5-4B-DFlash) |
+| Qwen3.5-9B | [z-lab/Qwen3.5-9B-DFlash](https://huggingface.co/z-lab/Qwen3.5-9B-DFlash) |
+| Qwen3.5-27B | [z-lab/Qwen3.5-27B-DFlash](https://huggingface.co/z-lab/Qwen3.5-27B-DFlash) |
+| Qwen3.5-35B-A3B | [z-lab/Qwen3.5-35B-A3B-DFlash](https://huggingface.co/z-lab/Qwen3.5-35B-A3B-DFlash) |
+| Qwen3-Coder-Next | [z-lab/Qwen3-Coder-Next-DFlash](https://huggingface.co/z-lab/Qwen3-Coder-Next-DFlash) |
+| Qwen3-Coder-30B-A3B | [z-lab/Qwen3-Coder-30B-A3B-DFlash](https://huggingface.co/z-lab/Qwen3-Coder-30B-A3B-DFlash) |
+| gpt-oss-20b | [z-lab/gpt-oss-20b-DFlash](https://huggingface.co/z-lab/gpt-oss-20b-DFlash) |
+| gpt-oss-120b | [z-lab/gpt-oss-120b-DFlash](https://huggingface.co/z-lab/gpt-oss-120b-DFlash) |
+| Qwen3-4B | [z-lab/Qwen3-4B-DFlash-b16](https://huggingface.co/z-lab/Qwen3-4B-DFlash-b16) |
+| Qwen3-8B | [z-lab/Qwen3-8B-DFlash-b16](https://huggingface.co/z-lab/Qwen3-8B-DFlash-b16) |
+| Llama-3.1-8B-Instruct | [z-lab/LLaMA3.1-8B-Instruct-DFlash-UltraChat](https://huggingface.co/z-lab/LLaMA3.1-8B-Instruct-DFlash-UltraChat) |
+| Qwen3.5-122B-A10B | Coming soon |
+| GLM-4.7-Flash | Coming soon |
 
-### ✅ Supported
-- **Qwen3.5-4B**: https://huggingface.co/z-lab/Qwen3.5-4B-DFlash
-- **Qwen3.5-9B**: https://huggingface.co/z-lab/Qwen3.5-9B-DFlash
-- **Qwen3.5-27B**: https://huggingface.co/z-lab/Qwen3.5-27B-DFlash
-- **Qwen3.5-35B-A3B**: https://huggingface.co/z-lab/Qwen3.5-35B-A3B-DFlash
-- **Qwen3-Coder-Next**: https://huggingface.co/z-lab/Qwen3-Coder-Next-DFlash
-- **gpt-oss-20b**: https://huggingface.co/z-lab/gpt-oss-20b-DFlash
-- **gpt-oss-120b**: https://huggingface.co/z-lab/gpt-oss-120b-DFlash
-- **Qwen3-4B**: https://huggingface.co/z-lab/Qwen3-4B-DFlash-b16  
-- **Qwen3-8B**: https://huggingface.co/z-lab/Qwen3-8B-DFlash-b16  
-- **Qwen3-Coder-30B-A3B**: https://huggingface.co/z-lab/Qwen3-Coder-30B-A3B-DFlash
-- **Llama-3.1-8B-Instruct**: https://huggingface.co/z-lab/LLaMA3.1-8B-Instruct-DFlash-UltraChat
+> Feel free to open a GitHub issue to request support for additional models. We will also open-source the training recipe soon, so you can train your own DFlash draft model to accelerate any LLM.
 
-### 🚧 Coming Soon
-- **Qwen3.5-122B-A10B**
-- **GLM-4.7-Flash**
+## 📦 Installation
 
-> 💡 Feel free to open a GitHub issue if you’d like to request support for additional models!  
-> We will also open-source the training recipe soon, so you can train your own DFlash draft model to accelerate any LLM.
+Use a separate virtual environment for each to avoid conflict.
 
-<br>
+| Backend | Install command |
+|---|---|
+| **Transformers** | `uv pip install -e .` |
+| **SGLang** | `uv pip install -e ".[sglang]"` |
+| **vLLM** | See below |
+
+**vLLM:** DFlash support requires the nightly build:
+```bash
+uv pip install -e ".[vllm]"
+uv pip install -U vllm --torch-backend=auto --extra-index-url https://wheels.vllm.ai/nightly
+```
 
 ## 🚀 Quick Start
 
-### Installation
-```bash
-conda create -n dflash python=3.12
-conda activate dflash
-
-git clone https://github.com/z-lab/dflash.git
-cd dflash
-
-pip install uv
-uv pip install -r requirements.txt
-
-# Optionally install flash-attn.
-# If unavailable, evaluation falls back to torch.sdpa in the Transformers backend.
-# The measured speedup will be slower, but the acceptance length remains comparable.
-
-# uv pip install flash-attn --no-build-isolation
-```
-
-### SGLang
-
-```bash
-export SGLANG_ALLOW_OVERWRITE_LONGER_CONTEXT_LEN=1
-export SGLANG_ENABLE_SPEC_V2=1
-export SGLANG_ENABLE_DFLASH_SPEC_V2=1
-export SGLANG_ENABLE_OVERLAP_PLAN_STREAM=1
-
-python -m sglang.launch_server \
-    --model-path Qwen/Qwen3-Coder-30B-A3B-Instruct \
-    --speculative-algorithm DFLASH \
-    --speculative-draft-model-path z-lab/Qwen3-Coder-30B-A3B-DFlash \
-    --tp-size 1 \
-    --dtype bfloat16 \
-    --attention-backend fa3 \
-    --mem-fraction-static 0.75 \
-    --trust-remote-code
-```
-
 ### vLLM
-Please install the latest vLLM from source.
+
 ```bash
 vllm serve Qwen/Qwen3.5-27B \
   --speculative-config '{"method": "dflash", "model": "z-lab/Qwen3.5-27B-DFlash", "num_speculative_tokens": 15}' \
@@ -84,86 +55,77 @@ vllm serve Qwen/Qwen3.5-27B \
   --max-num-batched-tokens 32768
 ```
 
+### SGLang
+
+```bash
+export SGLANG_ALLOW_OVERWRITE_LONGER_CONTEXT_LEN=1
+
+# Optional: enable schedule overlapping (experimental, may not be stable)
+# export SGLANG_ENABLE_SPEC_V2=1
+# export SGLANG_ENABLE_DFLASH_SPEC_V2=1
+# export SGLANG_ENABLE_OVERLAP_PLAN_STREAM=1
+
+python -m sglang.launch_server \
+    --model-path Qwen/Qwen3.5-35B-A3B \
+    --speculative-algorithm DFLASH \
+    --speculative-draft-model-path z-lab/Qwen3.5-35B-A3B-DFlash \
+    --speculative-num-draft-tokens 16 \
+    --tp-size 1 \
+    --attention-backend trtllm_mha \
+    --speculative-draft-attention-backend fa4 \
+    --mem-fraction-static 0.75 \
+    --mamba-scheduler-strategy extra_buffer \
+    --trust-remote-code
+```
+
 ### Transformers
-Only Qwen3 and LLaMA-3.1 models support Transformers backend.
+
+Only Qwen3 and LLaMA-3.1 models support the Transformers backend.
+
 ```python
 from transformers import AutoModel, AutoModelForCausalLM, AutoTokenizer
 
-model = AutoModel.from_pretrained(
-    "z-lab/Qwen3-8B-DFlash-b16", 
-    trust_remote_code=True, 
-    dtype="auto", 
-    device_map="cuda:0"
-).eval()
-
-target = AutoModelForCausalLM.from_pretrained(
-    "Qwen/Qwen3-8B", 
-    dtype="auto", 
-    device_map="cuda:0"
-).eval()
-
+draft = AutoModel.from_pretrained("z-lab/Qwen3-8B-DFlash-b16", trust_remote_code=True, dtype="auto", device_map="cuda:0").eval()
+target = AutoModelForCausalLM.from_pretrained("Qwen/Qwen3-8B", dtype="auto", device_map="cuda:0").eval()
 tokenizer = AutoTokenizer.from_pretrained("Qwen/Qwen3-8B")
-prompt = "How many positive whole-number divisors does 196 have?"
-messages = [
-    {"role": "user", "content": prompt}
-]
-# Note: this draft model is used for thinking mode disabled
-text = tokenizer.apply_chat_template(
-    messages,
-    tokenize=False,
-    add_generation_prompt=True,
-    enable_thinking=False
-)
-model_inputs = tokenizer([text], return_tensors="pt").to(model.device)
 
-generate_ids = model.spec_generate(
-    input_ids=model_inputs["input_ids"], 
-    max_new_tokens=2048, 
-    temperature=0.0, 
-    target=target, 
-    stop_token_ids=[tokenizer.eos_token_id]
-)
+messages = [{"role": "user", "content": "How many positive whole-number divisors does 196 have?"}]
+input_ids = tokenizer.apply_chat_template(messages, return_tensors="pt", add_generation_prompt=True, enable_thinking=False).to(draft.device)
 
-print(tokenizer.decode(generate_ids[0], skip_special_tokens=False))
+output = draft.spec_generate(input_ids=input_ids, max_new_tokens=2048, temperature=0.0, target=target, stop_token_ids=[tokenizer.eos_token_id])
+print(tokenizer.decode(output[0], skip_special_tokens=False))
 ```
 
 ## 📊 Evaluation
-We provide scripts to reproduce the speedup and acceptance length metrics in the paper. The reported results were tested on NVIDIA H200 or B200 GPUs. **Please note that only Qwen3 series and LLaMA-3.1 models support Transformers backend benchmark. For other models please use SGLang to run the benchmarks.**
 
-To run benchmark on Transformers backend:
+All benchmarks share the same datasets (gsm8k, math500, humaneval, mbpp, mt-bench). Datasets are automatically downloaded and cached as JSONL in `cache/` on first run.
+
+**vLLM**:
 ```bash
-bash run_benchmark.sh
+python -m dflash.benchmark --backend vllm \
+    --base-url http://127.0.0.1:8000 --model Qwen/Qwen3.5-27B \
+    --dataset gsm8k --num-prompts 128 --concurrency 1 --enable-thinking
 ```
 
-To run benchmark on SGLang:
+**SGLang**:
 ```bash
-bash run_sglang_benchmark.sh
+python -m dflash.benchmark --backend sglang \
+    --base-url http://127.0.0.1:30000 --model Qwen/Qwen3.5-35B-A3B \
+    --dataset gsm8k --num-prompts 128 --concurrency 1 --enable-thinking
 ```
 
-To run benchmark on vLLM, first launch the server, then run:
+**Transformers** (Qwen3 and LLaMA only):
 ```bash
-vllm bench serve \
-  --backend openai-chat \
-  --base-url http://127.0.0.1:8000 \
-  --endpoint /v1/chat/completions \
-  --dataset-name custom \
-  --dataset-path ./humaneval.jsonl \
-  --custom-output-len 4096 \
-  --num-prompts 1024 \
-  --max-concurrency 32 \
-  --model Qwen/Qwen3.5-27B \
-  --temperature 0.0
+torchrun --nproc_per_node=8 -m dflash.benchmark --backend transformers \
+    --model Qwen/Qwen3-8B --draft-model z-lab/Qwen3-8B-DFlash-b16 \
+    --dataset gsm8k --max-samples 128
 ```
 
-<!-- <div align="center">
-  <img src="assets/dflash_results.png" width="100%">
-</div> -->
-
-## **Acknowledgement**
+## Acknowledgement
 
 Huge thanks to [@dcw02](https://github.com/dcw02), [@gongy](https://github.com/gongy), and the team at [@modal-labs](https://github.com/modal-labs) for their fast, high-quality support in bringing DFlash to SGLang. And huge thanks as well to [@benchislett](https://github.com/benchislett) at NVIDIA for his work in bringing DFlash to vLLM and helping make it available to the broader serving community.
 
-## **Citation**
+## Citation
 If you find DFlash useful, please cite our work. To share feedback on DFlash or request new model support, please fill out this form: [DFlash Feedback](https://forms.gle/4YNwfqb4nJdqn6hq9).
 
 ```bibtex
