@@ -290,16 +290,19 @@ def _send_sglang(
 def _send_vllm(
     base_url: str, text: str, *, model: str, max_new_tokens: int,
     temperature: float, top_p: float, timeout_s: int,
+    enable_thinking: bool = False,
 ) -> dict:
+    body: dict = {
+        "model": model,
+        "messages": [{"role": "user", "content": text}],
+        "max_tokens": max_new_tokens,
+        "temperature": temperature,
+        "top_p": top_p,
+        "chat_template_kwargs": {"enable_thinking": enable_thinking},
+    }
     resp = requests.post(
         base_url + "/v1/chat/completions",
-        json={
-            "model": model,
-            "messages": [{"role": "user", "content": text}],
-            "max_tokens": max_new_tokens,
-            "temperature": temperature,
-            "top_p": top_p,
-        },
+        json=body,
         timeout=timeout_s,
     )
     resp.raise_for_status()
@@ -332,6 +335,7 @@ def _run_server(args: argparse.Namespace) -> None:
                 max_new_tokens=args.max_new_tokens,
                 temperature=args.temperature, top_p=args.top_p,
                 timeout_s=args.timeout_s,
+                enable_thinking=args.enable_thinking,
             )
         else:
             return _send_sglang(
