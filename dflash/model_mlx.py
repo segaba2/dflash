@@ -46,6 +46,9 @@ class DFlashConfig:
     # Personal note: use_qk_norm controls whether Q/K normalization is applied
     # in DFlashAttention. Keeping True (default) matches the original paper.
     use_qk_norm: bool = True
+    # Personal note: scale_factor allows overriding the default head_dim**-0.5
+    # attention scale. Set to None to use the standard value (default behavior).
+    scale_factor: Optional[float] = None
 
 
 def _build_rope(
@@ -69,7 +72,12 @@ class DFlashAttention(nn.Module):
         dim = config.hidden_size
         self.n_heads = n_heads = config.num_attention_heads
         self.n_kv_heads = n_kv_heads = config.num_key_value_heads
-        self.scale = config.head_dim ** -0.5
+        # Use scale_factor override if provided, otherwise fall back to standard
+        # head_dim**-0.5. Useful for experimenting with scaled dot-product variants.
+        if config.scale_factor is not None:
+            self.scale = config.scale_factor
+        else:
+            self.scale = config.head_dim ** -0.5
         self.q_proj = nn.Linear(dim, n_heads * config.head_dim, bias=False)
         self.k_proj = nn.Linear(dim, n_kv_heads * config.head_dim, bias=False)
         self.v_proj = nn.Linear(dim, n_kv_heads * config.head_dim, bias=False)
@@ -88,7 +96,4 @@ class DFlashAttention(nn.Module):
         ctx_values = self.v_proj(x_ctx)
         prop_keys = self.k_proj(x)
         prop_values = self.v_proj(x)
-        queries = self.q_norm(queries.reshape(B, L, self.n_heads, -1)).transpose(0, 2, 1, 3)
-        ctx_keys = self.k_norm(ctx_keys.reshape(B, S, self.n_kv_heads, -1)).transpose(0, 2, 1, 3)
-        ctx_values = ctx_values.reshape(B, S, self.n_kv_heads, -1).transpose(0, 2, 1, 3)
-        prop_keys = self.k_norm(prop_keys.reshape(B, L, self.n_kv_heads, -1
+        queries =
