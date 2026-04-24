@@ -58,4 +58,4 @@ vllm serve Qwen/Qwen3.5-27B \
   --max-model-len 8192
 ```
 
-> **Note (personal):** I've found that `--max-model-len 8192` is a reasonable default for most consumer GPU setups (e.g. 2×A100 80GB). Increase to 32768 if you have the VRAM headroom.
+> **Note (personal):** I've found `--max-model-len 8192` to be a reasonable default for most tasks on a single A100 80GB. Increase to `16384` if you have headroom and are working with long-context inputs.
