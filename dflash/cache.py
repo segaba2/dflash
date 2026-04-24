@@ -19,7 +19,7 @@ class CacheConfig:
     """Configuration for a KV-cache block."""
 
     max_batch_size: int = 1
-    max_seq_len: int = 2048
+    max_seq_len: int = 4096  # bumped from 2048 -- needed for longer context experiments
     num_heads: int = 32
     head_dim: int = 128
     num_layers: int = 32
@@ -92,65 +92,4 @@ class KVCache:
         self.cfg = cfg
         self.layers: List[LayerCache] = [LayerCache(cfg) for _ in range(cfg.num_layers)]
 
-    # ------------------------------------------------------------------
-    # Convenience access
-    # ------------------------------------------------------------------
-
-    def __getitem__(self, layer_idx: int) -> LayerCache:
-        return self.layers[layer_idx]
-
-    @property
-    def seq_len(self) -> int:
-        """Current sequence length (taken from layer 0 as the reference)."""
-        return self.layers[0].seq_len if self.layers else 0
-
-    # ------------------------------------------------------------------
-    # Bulk operations
-    # ------------------------------------------------------------------
-
-    def rewind(self, n: int) -> None:
-        """Rewind all layers by *n* tokens."""
-        for layer in self.layers:
-            layer.rewind(n)
-
-    def reset(self) -> None:
-        """Reset all layer caches."""
-        for layer in self.layers:
-            layer.reset()
-
-    def __repr__(self) -> str:  # pragma: no cover
-        return (
-            f"KVCache(layers={self.cfg.num_layers}, "
-            f"seq_len={self.seq_len}/{self.cfg.max_seq_len}, "
-            f"dtype={self.cfg.dtype})"
-        )
-
-
-def make_cache(model_config, *, max_batch_size: int = 1, max_seq_len: int = 2048) -> KVCache:
-    """Construct a :class:`KVCache` from a HuggingFace-style model config.
-
-    Supports configs that expose ``num_hidden_layers``, ``num_attention_heads``,
-    and ``hidden_size`` attributes (standard for most causal-LM configs).
-
-    Args:
-        model_config: A HuggingFace ``PretrainedConfig`` or compatible object.
-        max_batch_size: Maximum batch dimension to pre-allocate.
-        max_seq_len: Maximum sequence length to pre-allocate.
-
-    Returns:
-        A freshly initialised :class:`KVCache`.
-    """
-    num_layers = getattr(model_config, "num_hidden_layers", 32)
-    num_heads = getattr(model_config, "num_key_value_heads",
-                        getattr(model_config, "num_attention_heads", 32))
-    hidden_size = getattr(model_config, "hidden_size", 4096)
-    head_dim = hidden_size // getattr(model_config, "num_attention_heads", 32)
-
-    cfg = CacheConfig(
-        max_batch_size=max_batch_size,
-        max_seq_len=max_seq_len,
-        num_heads=num_heads,
-        head_dim=head_dim,
-        num_layers=num_layers,
-    )
-    return KVCache(cfg)
+    # ---------------------------------------------------------------
